@@ -31,7 +31,7 @@ Git 是一个分布式版本控制系统，核心分为三个区域：
 远程交互流程：
 
 工作区  ---add--->  暂存区  ---commit--->  本地仓库  ---push--->  远程仓库
-工作区  <--merge/checkout---  暂存区  <---reset---  本地仓库  <---fetch---  远程仓库
+工作区  <--merge/checkout---  本地仓库  <---fetch---  远程仓库
 
 ---
 
@@ -42,15 +42,10 @@ Git 是一个分布式版本控制系统，核心分为三个区域：
 首先需要配置用户名和邮箱，这些信息会记录在每次提交中。
 
 ### 设置用户名
-git config --global user.name "名字"
+git config --global user.name 名字
 
 ### 设置邮箱
-git config --global user.email "邮箱"
-
-### github操作
-
-1. 在home界面点击左边栏New创建新存储库。
-2. 输入存储库名字，并点击创建。
+git config --global user.email 邮箱
 
 ### 步骤 2：添加远程仓库
 
@@ -103,22 +98,23 @@ mkdir day1
 4. 选择项目克隆到哪一个文件夹。
 5. 点击commit，publish（pull）即可提交修改。
 6. 点击Sync Changes可同步远程仓库。
+
 ---
 
 ## 五、常用 Git 命令及知识汇总
 
 ### 基础概念
 
-1. repository：仓库，在Github等平台的为远程仓库，在本地的为本地仓库
+1. repository：仓库，在Github等平台的为远程仓库，在本地的为本地仓库。
     - 可分为Work Directory(工作区)、Local Repository(本地仓库)、Remote Repository(远程仓库)、Staging/Index(暂存区)三个区域。
     - git clone将远程仓库保存到本地，同时创建出本地存储库和工作目录。
     - git add+git commit将工作区改动提交到本地仓库。
-    - git add将文件保存到暂存区，git commit将暂存区所有改动提交到本地仓库
+    - git add将文件保存到暂存区，git commit将暂存区所有改动提交到本地仓库。
     - git push将本地仓库改动推送到远程仓库。
-    - git pull将远程仓库最新改动更新并合并到本地
-    - git pull = git fetch + git merge
-2. branch：在不同分支上的修改不会互相影响，开发结束后，即可将分支合并回主干（merge）
-3. remote：
+    - git pull将远程仓库最新改动更新并合并到本地。
+    - git pull = git fetch + git merge。
+2. branch：在不同分支上的修改不会互相影响，开发结束后，即可将分支合并回主干（merge）。
+3. remote：连接远程仓库。
 
 ### 配置类
 | 命令 | 说明 |
@@ -166,8 +162,7 @@ mkdir day1
 2. .gitignore文件中声明了文件夹中那些文件不受git管理（如密钥，依赖包等文件），文件为文件名，目录为目录名/。
 3. git reset --hard CommitID可用于把仓库强制回退到某历史状态（用于单人使用的分支还未提交到远程仓库）。
 4. discard用于放弃还没commit的文件修改。
-5. revert生成反向commit抵消某次commit（用于多人协作分支，相对安全）
-6. 
+5. revert生成反向commit抵消某次commit（用于多人协作分支，相对安全）。
 
 ---
 
