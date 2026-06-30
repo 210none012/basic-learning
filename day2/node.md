@@ -1,360 +1,236 @@
-﻿# 实验二：AI 工具、Docker 与 Linux 基础
+# 实验二：Docker、SSH、Python API 调用与 WSL
 
-## 第一部分：AI 编程工具
+## 一、实验目的
 
-### 一、实验目的
+1. 学会使用 Docker 构建镜像并部署到远程服务器
+2. 学会使用 SSH 连接远程 Linux 服务器
+3. 学会在 Python 中调用 API 接口
+4. 学会使用 WSL（Windows Subsystem for Linux）
 
-1. 学会使用 Codex CLI 进行 AI 辅助编程
-2. 了解 Codex 的基本功能和工作方式
+## 二、实验环境
 
-### 二、实验环境
+- 操作系统：Windows 11
+- Docker：Docker Desktop 29.6.1 (WSL2 后端)
+- Python：3.14.6
+- 远程服务器：阿里云 ECS (Ubuntu, 121.41.1.96)
+- WSL：Ubuntu (WSL2)
 
-- 操作系统：Windows
-- 工具：Codex CLI（已安装）
-- IDE：VS Code + Codex 插件
+## 三、实验项目
 
-### 三、Codex CLI 基本使用
+编写一个基于 DeepSeek API 的 AI 问答网页程序，用 Docker 打包部署到远程服务器。
 
-#### 3.1 Codex 是什么
+## 四、实验步骤
 
-Codex 是 OpenAI 推出的终端级 AI 编程助手，可以直接在命令行中通过自然语言与 AI 交互，完成代码编写、文件操作、Git 操作等任务。
+### 步骤 1：编写 Python 后端
 
-#### 3.2 已验证的功能
+使用 Flask 框架编写后端，调用 DeepSeek API 实现 AI 对话。
 
-通过 Day1 的实验，已验证 Codex 可以完成以下操作：
+关键代码 (`app.py`)：
+- Flask 提供 Web 服务，前端 HTML 内嵌在模板中
+- POST `/api/chat` 接收用户消息，调用 DeepSeek API 返回回复
+- 使用会话机制保持多轮对话上下文
+- DeepSeek 模型：`deepseek-v4-flash`
 
-| 功能 | 说明 | 验证状态 |
-|------|------|----------|
-| Git 操作 | 添加远程仓库、fetch、checkout、push | ✔ 已验证 |
-| 文件读写 | 创建文件、写入内容 | ✔ 已验证 |
-| 命令执行 | 运行 shell 命令并解析输出 | ✔ 已验证 |
-| 环境检查 | 检查系统安装的工具和版本 | ✔ 已验证 |
-| 代码生成 | 根据需求生成代码和文档 | ✔ 已验证 |
+### 步骤 2：编写前端页面
 
-#### 3.3 Codex 的工作模式
+内嵌于 Flask 的 HTML/CSS/JS 单页应用：
+- 暗色渐变背景，毛玻璃效果容器
+- 聊天气泡界面，用户消息和 AI 回复区分左右
+- 打字动画加载效果
+- 支持 Enter 键发送消息
 
-- **计划模式**：先制定步骤计划，再逐步执行
-- **默认模式**：直接执行任务，边做边反馈
-- **审批机制**：涉及网络、外部写入等操作需要用户确认
+### 步骤 3：Docker 镜像构建
 
-#### 3.4 VS Code Codex 插件配置
-
-在 VS Code 中安装 Codex 插件：
-
-1. 打开 VS Code → 扩展 (Ctrl+Shift+X)
-2. 搜索 "Codex"
-3. 安装 OpenAI Codex 插件
-4. 登录 OpenAI 账号完成认证
-5. 在 VS Code 终端中即可使用 Codex CLI
-
----
-
-## 第二部分：Docker
-
-### 一、实验目的
-
-1. 了解 Docker 容器技术的基本概念
-2. 掌握 Docker 的安装和环境配置
-3. 学会启动和管理 Docker 容器
-
-### 二、实验原理
-
-#### 2.1 Docker 是什么
-
-Docker 是一个**容器化平台**，可以将应用及其依赖打包到一个轻量级、可移植的容器中，在任何支持 Docker 的系统上运行。
-
-#### 2.2 核心概念
-
-| 概念 | 说明 |
-|------|------|
-| 镜像 (Image) | 容器的模板，包含应用和运行环境 |
-| 容器 (Container) | 镜像的运行实例，相互隔离 |
-| Dockerfile | 定义镜像构建步骤的文本文件 |
-| Docker Hub | 官方的镜像仓库 |
-| 数据卷 (Volume) | 持久化存储，容器间共享数据 |
-
-#### 2.3 与传统虚拟机的区别
-
-| | Docker 容器 | 虚拟机 |
-|------|-------------|--------|
-| 启动速度 | 秒级 | 分钟级 |
-| 资源占用 | MB 级 | GB 级 |
-| 隔离级别 | 进程级 | 硬件级 |
-| 操作系统 | 共享宿主机内核 | 每个 VM 有独立 OS |
-
-### 三、实验步骤（待执行）
-
-#### 步骤 1：安装 Docker Desktop
-
-`powershell
-# Windows 下推荐安装 Docker Desktop
-# 下载地址：https://www.docker.com/products/docker-desktop/
-`
-
-安装注意事项：
-- 需要开启 Hyper-V 或 WSL2 后端
-- 建议使用 WSL2 作为 Docker 引擎后端
-
-#### 步骤 2：验证安装
-
-`ash
-docker --version          # 查看版本
-docker run hello-world    # 运行测试镜像
-`
-
-#### 步骤 3：常用 Docker 命令
-
-`ash
-# 镜像管理
-docker images                    # 列出本地镜像
-docker pull <image>              # 拉取镜像
-docker rmi <image>               # 删除镜像
-
-# 容器管理
-docker run -d -p 8080:80 nginx   # 后台运行 nginx，映射端口
-docker ps                        # 查看运行中的容器
-docker ps -a                     # 查看所有容器（含已停止）
-docker stop <container>          # 停止容器
-docker start <container>         # 启动已停止的容器
-docker rm <container>            # 删除容器
-docker exec -it <container> bash # 进入容器交互终端
-
-# 日志与信息
-docker logs <container>          # 查看容器日志
-docker inspect <container>       # 查看容器详细信息
-`
-
-#### 步骤 4：编写 Dockerfile
-
-`dockerfile
-# 示例：一个简单的 Node.js 应用
-FROM node:18-alpine
+编写 Dockerfile：
+```dockerfile
+FROM python:3.12-slim
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-EXPOSE 3000
-CMD ["node", "index.js"]
-`
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY app.py .
+EXPOSE 8000
+CMD ["python", "app.py"]
+```
 
-#### 步骤 5：Docker Compose
+构建镜像：
+```powershell
+docker build -t ai-chat:latest day2-ai-chat/code
+```
+![ping-mu-jie-tu-2026-06-30-163843.png](https://i.postimg.cc/597CHGLP/ping-mu-jie-tu-2026-06-30-163843.png)
+遇到的问题：Docker Hub 在国内被墙，拉取基础镜像极慢。
+解决方案：配置国内镜像加速源。
 
-`yaml
-# docker-compose.yml 示例
-version: '3.8'
-services:
-  web:
-    build: .
-    ports:
-      - "3000:3000"
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_PASSWORD: example
-`
+### 步骤 4：本地测试
 
----
+```powershell
+# 启动容器
+docker run -d -p 8000:8000 --name ai-chat ai-chat:latest
 
-## 第三部分：Linux 命令与 WSL
+# 浏览器访问
+http://127.0.0.1:8000
+```
+测试结果：
+- 前端页面正常渲染
+- API 调用 DeepSeek 返回正确回复
+- 中文对话正常（JSON_AS_ASCII = False）
+![ping-mu-jie-tu-2026-06-30-204731-1.png](https://i.postimg.cc/qBb3tYyW/ping-mu-jie-tu-2026-06-30-204731-1.png)
+### 步骤 5：SSH 连接远程服务器
 
-### 一、实验目的
+```powershell
+ssh root@121.41.1.96
+```
 
-1. 配置 Windows Subsystem for Linux (WSL)
-2. 掌握基本的 Linux 命令行操作
-3. 学会使用 SSH 连接远程服务器
+服务器信息：
+- IP：121.41.1.96
+- 系统：Ubuntu
+- 实例 ID：iZbp16vieus5shfnl16fhuZ
 
-### 二、实验环境检查
+### 步骤 6：部署到远程服务器
 
-当前状态：
-- WSL 子系统：已安装（需安装 Linux 发行版）
-- 当前无已安装的 Linux 发行版
+```powershell
+# 导出镜像
+docker save ai-chat:latest -o ai-chat.tar
 
-### 三、实验步骤
+# 上传到服务器
+scp ai-chat.tar ecs-assist-user@121.41.1.96:~/
+```
 
-#### 步骤 1：安装 WSL Linux 发行版
+在服务器上：
+```bash
+# 加载并运行
+docker load -i ~/ai-chat.tar
+docker run -d -p 8000:8000 --name ai-chat --restart always ai-chat:latest
+```
+![ping-mu-jie-tu-2026-06-30-163927.png](https://i.postimg.cc/cCbgVgdd/ping-mu-jie-tu-2026-06-30-163927.png)
+![ping-mu-jie-tu-2026-06-30-170719.png](https://i.postimg.cc/mZXHcqC5/ping-mu-jie-tu-2026-06-30-170719.png)
+验证：
+```bash
+curl -X POST http://localhost:8000/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"session_id":"test","message":"你好"}'
+```
 
-`powershell
-# 查看可用的 Linux 发行版
-wsl --list --online
+### 步骤 7：WSL 环境配置
 
-# 安装 Ubuntu（推荐）
+```powershell
+# 确认 WSL2 已运行（Docker Desktop 依赖它）
+wsl --list --verbose
+# 输出：docker-desktop Running, Ubuntu Running
+
+# 安装 Ubuntu 发行版
 wsl --install -d Ubuntu
 
-# 或安装 Debian
-wsl --install -d Debian
-`
+# 进入 Ubuntu
+wsl -d Ubuntu
+# 设置用户名密码后即可使用
+```
 
-安装完成后会提示创建用户名和密码。
+WSL 中项目路径：`/mnt/c/Users/16696/Documents/basic-learning/`
 
-#### 步骤 2：WSL 基本操作
+## 五、Docker 常用命令及知识总结
 
-`powershell
-wsl                        # 进入默认 Linux 环境
-wsl -d Ubuntu              # 进入指定发行版
-wsl --list --verbose       # 查看已安装的发行版
-wsl --shutdown             # 关闭所有 WSL 实例
-exit                       # 退出 WSL 回到 Windows
-`
+| 命令                                            | 说明          |
+| --------------------------------------------- | ----------- |
+| `docker build -t name:tag .`                  | 构建镜像        |
+| `docker images`                               | 查看本地镜像      |
+| `docker run -d -p 8000:8000 --name xxx image` | 后台运行容器，映射端口 |
+| `docker ps`                                   | 查看运行中的容器    |
+| `docker ps -a`                                | 查看所有容器      |
+| `docker stop/start/restart name`              | 停止/启动/重启    |
+| `docker rm name`                              | 删除容器        |
+| `docker rmi image`                            | 删除镜像        |
+| `docker logs name`                            | 查看容器日志      |
+| `docker exec -it name bash`                   | 进入容器终端      |
+| `docker save image -o file.tar`               | 导出镜像        |
+| `docker load -i file.tar`                     | 导入镜像        |
 
-#### 步骤 3：Linux 基础命令
+## 命令
 
-##### 3.1 文件和目录操作
+- docker pull docker.io/library/nginx:latest(registry：仓库地址（官方发布可省略）/namespace：命名空间（作者名）（官方发布可省略）/名称：tag：标签（版本号）)
+- docker.io/library/nginx是一个镜像库，存放同一镜像的不同版本
+- docker run = docker pull + docker run当镜像不存在时会自动拉取
+- docker容器与宿主机是隔离的，因此需要进行端口映射访问（-p 宿主机端口:容器端口）
+- 挂载卷：将宿主机与容器内目录绑定，相互影响，防止删除容器时，删除所有数据（-v 宿主机目录:容器目录）绑定后宿主机目录会覆盖容器目录
+- sudo docker volume create nginx_html后可直接用nginx_html代替宿主机目录，可使用docker volume inspect nginx_html查看挂载卷名字
+- run -it ：让控制台进入容器
+- run --rm：当容器停止时删除
+- run --restart always（自动重启） /unless-stopped（手动停止的不再重启）
+- 每次docker run 都会启动一个新的容器，docker start/stop可以实现对原有容器的启停
+- docker create 只创建容器，但不立即启动，
+- docker logs 用于查看日志
+- docker 使用了Cgroup进行限制和隔离进程的资源使用，可以设置资源上限，避免影响宿主机。Namespaces用于隔离进程的资源视图，使容器只能看到内部的进程ID，网络资源和文件目录。docker内部类似于一个Linux系统。
+- 可以使用docker exec ID ps -ef查看容器内进程
+- docker exec -it ID /bin/sh可以进入容器内执行Linux命令。
 
-`ash
-pwd                  # 显示当前目录路径
-ls                   # 列出目录内容
-ls -la               # 列出详细信息（含隐藏文件）
-cd <dir>             # 切换目录
-mkdir <dir>          # 创建目录
-touch <file>         # 创建空文件
-cp <src> <dst>       # 复制文件/目录
-mv <src> <dst>       # 移动/重命名
-rm <file>            # 删除文件
-rm -r <dir>          # 递归删除目录
-cat <file>           # 查看文件内容
-head/tail <file>     # 查看文件开头/结尾
-find . -name "*.txt" # 查找文件
-`
+## Dockerfile
 
-##### 3.2 系统信息
+- Dockerfile第一行为FROM 基础镜像
+- WORKDIR类似于cd，用于切换到容器内目录
+- COPY用于拷贝文件
+- RUN用于执行命令
+- EXPOSE声明镜像提供服务的端口（仅声明）
+- CMD为容器自动执行命令，建议写成数组形式。
 
-`ash
-uname -a             # 系统信息
-df -h                # 磁盘使用情况
-free -h              # 内存使用情况
-top / htop           # 进程监控
-ps aux               # 查看所有进程
-whoami               # 当前用户
-id                   # 用户和组信息
-`
+## 推送
 
-##### 3.3 权限管理
+- 推送镜像时需要带上用户名
+  docker build -t 用户名/镜像名
+  docker push 用户名/镜像名
 
-`ash
-chmod 755 file       # 修改文件权限
-chmod +x script.sh   # 添加执行权限
-chown user:group file# 修改文件所有者
-sudo <command>       # 以管理员身份执行
-`
+## Docker网络
 
-##### 3.4 文本处理
+- Docker网络默认为bridge（桥接模式），所有容器默认连接该网络，容器之间可以互相访问，但与宿主机隔离。
+- docker network create network1可以创建子网，同一子网下容器可互相访问（run --network指定加入子网），子网内使用名字即可互相访问
+- Host模式下容器共享宿主机的网络，容器直接使用宿主机的IP地址，服务直接运行在宿主机端口（run --network host)
+- none模式：不联网
+## 六、SSH 常用命令总结
 
-`ash
-grep "pattern" file  # 搜索文本
-grep -r "pattern" .  # 递归搜索目录
-wc -l file           # 统计行数
-sort file            # 排序
-uniq                 # 去重
-管道符 |              # 连接多个命令
-`
+| 命令 | 说明 |
+|------|------|
+| `ssh user@host` | 密码/密钥登录 |
+| `ssh -p 2222 user@host` | 指定端口登录 |
+| `ssh-keygen -t ed25519` | 生成密钥对 |
+| `ssh-copy-id user@host` | 复制公钥到服务器 |
+| `scp file user@host:path` | 上传文件 |
+| `scp user@host:path ./` | 下载文件 |
+| `scp -r dir user@host:path` | 上传目录 |
 
-##### 3.5 网络操作
+## 七、实验结果
 
-`ash
-ping <host>          # 测试网络连通性
-curl <url>           # 发送 HTTP 请求
-wget <url>           # 下载文件
-netstat -tlnp        # 查看端口监听
-ip addr / ifconfig   # 查看网络接口信息
-`
+1. Docker 镜像构建成功，国内镜像源加速正常
+2. 本地 Docker 容器运行 AI 问答网页，功能完整
+3. SSH 成功连接阿里云 ECS 服务器
+4. 镜像部署到服务器，API 返回正确
+5. WSL2 Ubuntu 环境配置完成
 
-#### 步骤 4：SSH 连接远程服务器
+## 八、项目结构
 
-##### 4.1 SSH 是什么
+```
+day2/
+├── node.md                    # 本实验报告
+└── day2-ai-chat/              # AI 问答网页项目
+    ├── README.md              # 项目说明
+    └── code/
+        ├── app.py             # Flask 后端 + 前端
+        ├── Dockerfile         # Docker 构建文件
+        └── requirements.txt   # Python 依赖
+```
 
-SSH (Secure Shell) 是一种加密的网络协议，用于安全地远程登录和管理服务器。
+## 九、实验总结
 
-##### 4.2 基本连接
+通过本次实验，掌握了以下技能：
 
-`ash
-# 密码登录
-ssh username@hostname
-ssh username@192.168.1.100
-ssh -p 2222 username@hostname    # 指定端口
+- **Docker 全流程**：编写 Dockerfile → 构建镜像 → 本地运行 → 导出 → 远程部署
+- **SSH 远程操作**：SSH 登录、SCP 文件传输、服务器环境配置
+- **Python API 调用**：使用 `requests` 库调用 DeepSeek 等第三方 API
+- **Flask Web 开发**：搭建 Web 服务、前后端交互
+- **WSL 环境**：Windows 上运行 Linux，实现本地与服务器环境一致
 
-# 退出远程连接
-exit
-`
+### 遇到的问题与解决
 
-##### 4.3 SSH 密钥配置（免密登录）
+| 问题                       | 解决方案                           |
+| ------------------------ | ------------------------------ |
+| Docker Hub 拉取镜像超时        | 配置国内镜像加速源                      |
+| Docker Desktop 修改配置卡死    | 直接编辑 daemon.json 文件            |
+| SSH 连接 Permission denied | 阿里云 ECS 需用密钥或重置密码              |
 
-`ash
-# 1. 生成 SSH 密钥对
-ssh-keygen -t ed25519 -C "your_email@example.com"
-
-# 2. 将公钥复制到服务器
-ssh-copy-id username@hostname
-
-# 3. 之后即可免密登录
-ssh username@hostname
-`
-
-##### 4.4 SSH 配置文件
-
-`ash
-# ~/.ssh/config 示例
-Host myserver
-    HostName 192.168.1.100
-    User root
-    Port 22
-    IdentityFile ~/.ssh/id_ed25519
-
-# 配置后可以直接用别名连接
-ssh myserver
-`
-
-##### 4.5 SCP 文件传输
-
-`ash
-# 上传文件到服务器
-scp localfile.txt user@host:/remote/path/
-
-# 从服务器下载文件
-scp user@host:/remote/file.txt ./
-
-# 递归传输目录
-scp -r localdir user@host:/remote/path/
-`
-
-### 四、常用 Linux 命令速查表
-
-| 分类 | 命令 | 说明 |
-|------|------|------|
-| 导航 | pwd ls cd | 路径、列表、切换 |
-| 文件 | 	ouch mkdir cp mv m | 创建、复制、移动、删除 |
-| 查看 | cat less head 	ail | 查看文件内容 |
-| 权限 | chmod chown sudo | 权限管理 |
-| 搜索 | grep ind locate | 搜索文件和内容 |
-| 系统 | ps 	op df ree uname | 系统信息 |
-| 网络 | ping curl wget ssh scp | 网络操作 |
-| 管道 | \| > >> < | 输入输出重定向 |
-| 进程 | kill jobs g g | 进程管理 |
-| 包管理 | pt install/update (Ubuntu) | 软件安装 |
-
----
-
-## 四、Day2 实验总结
-
-### AI 工具
-- Codex CLI 已可通过命令行完成 Git 操作、文件管理、代码生成等任务
-- 支持计划模式和默认模式，带有审批机制保障安全性
-- VS Code 插件可进一步提升开发体验
-
-### Docker
-- Docker 是轻量级容器化平台，启动快、资源占用少
-- 核心流程：编写 Dockerfile → 构建镜像 → 运行容器
-- Docker Compose 可编排多容器应用
-- 待完成：安装 Docker Desktop
-
-### Linux 命令
-- WSL 是 Windows 上运行 Linux 的最佳方式
-- 待完成：安装 Ubuntu 发行版
-- 掌握了文件操作、权限管理、文本处理、网络操作等基础命令
-- SSH 是远程服务器管理的核心工具，支持密码和密钥两种认证方式
-
-### 待办事项
-- [ ] 安装 Docker Desktop
-- [ ] 安装 WSL Ubuntu 发行版
-- [ ] 实践 Docker 容器启动和管理
-- [ ] 在 WSL 中练习 Linux 基础命令
-- [ ] 配置 SSH 密钥并尝试连接远程服务器
