@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
 
 # DeepSeek API 配置（使用 OpenAI SDK）
-DEEPSEEK_API_KEY = os.environ.get('DEEPSEEK_API_KEY', 'sk-your-deepseek-key')
+DEEPSEEK_API_KEY = os.environ.get('DEEPSEEK_API_KEY', 'key')
 DEEPSEEK_MODEL = os.environ.get('DEEPSEEK_MODEL', 'deepseek-v4-flash')
 
 client = OpenAI(
